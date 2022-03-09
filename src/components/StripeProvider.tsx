@@ -4,7 +4,7 @@ import NativeStripeSdk from '../NativeStripeSdk';
 import { isAndroid, shouldAttributeExpo } from '../helpers';
 import type {
   AppInfo,
-  ThreeDSecureConfigurationParams,
+  ThreeDSecure,
   InitStripeParams,
   InitialiseParams,
 } from '../types';
@@ -18,7 +18,7 @@ const EXPO_PARTNER_ID = 'pp_partner_JBN7LkABco2yUu';
 export interface Props {
   publishableKey: string;
   merchantIdentifier?: string;
-  threeDSecureParams?: ThreeDSecureConfigurationParams;
+  threeDSecureParams?: ThreeDSecure.ConfigurationParams;
   stripeAccountId?: string;
   children: React.ReactElement | React.ReactElement[];
   urlScheme?: string;

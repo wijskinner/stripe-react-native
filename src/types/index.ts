@@ -1,4 +1,3 @@
-import type { Card } from './Card';
 import type {
   ApplePayError,
   CardActionError,
@@ -12,25 +11,36 @@ import type {
   RetrieveSetupIntentError,
   StripeError,
 } from './Errors';
-import type { PaymentIntent } from './PaymentIntents';
-import type { PaymentMethod } from './PaymentMethods';
-import type { PaymentSheet } from './PaymentSheet';
-import type { SetupIntent } from './SetupIntent';
-import type { ThreeDSecureConfigurationParams } from './ThreeDSecure';
+import * as ApplePay from './ApplePay';
+import * as PaymentIntent from './PaymentIntent';
+import * as PaymentMethod from './PaymentMethod';
+import * as PaymentSheet from './PaymentSheet';
+import * as SetupIntent from './SetupIntent';
+import * as ThreeDSecure from './ThreeDSecure';
+import * as GooglePay from './GooglePay';
+import * as ApplePayButtonComponent from './components/ApplePayButtonComponent';
+import * as AuBECSDebitFormComponent from './components/AuBECSDebitFormComponent';
+import * as CardFieldInput from './components/CardFieldInput';
+import * as CardFormView from './components/CardFormView';
+import * as Token from './Token';
 
-export * from './ApplePay';
-export * from './PaymentIntents';
-export * from './PaymentMethods';
-export * from './SetupIntent';
-export * from './GooglePay';
-export * from './ThreeDSecure';
-export * from './components/ApplePayButtonComponent';
-export * from './components/AuBECSDebitForm';
-export * from './components/CardFieldInput';
-export * from './components/CardFormView';
-export * from './Card';
+export {
+  ApplePay,
+  PaymentIntent,
+  PaymentMethod,
+  PaymentSheet,
+  SetupIntent,
+  ThreeDSecure,
+  GooglePay,
+  ApplePayButtonComponent,
+  AuBECSDebitFormComponent,
+  CardFieldInput,
+  CardFormView,
+  Token,
+};
+
 export * from './Errors';
-export * from './PaymentSheet';
+export { Address, BillingDetails } from './Common';
 
 /**
  * @ignore
@@ -38,11 +48,6 @@ export * from './PaymentSheet';
 export type Dictionary<T> = {
   [key: string]: T;
 };
-
-/**
- * @ignore
- */
-export type Nullable<T> = T | null;
 
 export interface AppInfo {
   name?: string;
@@ -53,7 +58,7 @@ export interface AppInfo {
 
 export type CreatePaymentMethodResult =
   | {
-      paymentMethod: PaymentMethod;
+      paymentMethod: PaymentMethod.Result;
       error?: undefined;
     }
   | {
@@ -63,7 +68,7 @@ export type CreatePaymentMethodResult =
 
 export type RetrievePaymentIntentResult =
   | {
-      paymentIntent: PaymentIntent;
+      paymentIntent: PaymentIntent.Result;
       error?: undefined;
     }
   | {
@@ -73,7 +78,7 @@ export type RetrievePaymentIntentResult =
 
 export type RetrieveSetupIntentResult =
   | {
-      setupIntent: SetupIntent;
+      setupIntent: SetupIntent.Result;
       error?: undefined;
     }
   | {
@@ -83,7 +88,7 @@ export type RetrieveSetupIntentResult =
 
 export type ConfirmPaymentResult =
   | {
-      paymentIntent: PaymentIntent;
+      paymentIntent: PaymentIntent.Result;
       error?: undefined;
     }
   | {
@@ -93,7 +98,7 @@ export type ConfirmPaymentResult =
 
 export type HandleCardActionResult =
   | {
-      paymentIntent: PaymentIntent;
+      paymentIntent: PaymentIntent.Result;
       error?: undefined;
     }
   | {
@@ -103,7 +108,7 @@ export type HandleCardActionResult =
 
 export type ConfirmSetupIntentResult =
   | {
-      setupIntent: SetupIntent;
+      setupIntent: SetupIntent.Result;
       error?: undefined;
     }
   | {
@@ -147,7 +152,7 @@ export type PresentPaymentSheetResult =
 
 export type CreateTokenResult =
   | {
-      token: Card.Token;
+      token: Token.Result;
       error?: undefined;
     }
   | {
@@ -161,7 +166,7 @@ export type ConfirmPaymentSheetPaymentResult = {
 
 export type ApplePayResult =
   | {
-      paymentMethod: PaymentMethod;
+      paymentMethod: PaymentMethod.Result;
       error?: undefined;
     }
   | {
@@ -172,7 +177,7 @@ export type ApplePayResult =
 export interface InitStripeParams {
   publishableKey: string;
   stripeAccountId?: string;
-  threeDSecureParams?: ThreeDSecureConfigurationParams;
+  threeDSecureParams?: ThreeDSecure.ConfigurationParams;
   merchantIdentifier?: string;
   urlScheme?: string;
   setUrlSchemeOnAndroid?: boolean;
@@ -200,7 +205,7 @@ export type PayWithGooglePayResult =
 
 export type CreateGooglePayPaymentMethodResult =
   | {
-      paymentMethod: PaymentMethod;
+      paymentMethod: PaymentMethod.Result;
       error?: undefined;
     }
   | {
@@ -215,25 +220,3 @@ export type OpenApplePaySetupResult =
   | {
       error: StripeError<ApplePayError>;
     };
-
-export type CreateTokenParams =
-  | CreateTokenCardParams
-  | CreateTokenBankAccountParams;
-
-export type CreateTokenCardParams = {
-  type: 'Card';
-  address?: Card.Address;
-  name?: string;
-};
-
-export type BankAcccountHolderType = 'Company' | 'Individual';
-
-export type CreateTokenBankAccountParams = {
-  type: 'BankAccount';
-  accountHolderName?: string;
-  accountHolderType?: BankAcccountHolderType;
-  accountNumber: string;
-  country: string;
-  currency: string;
-  routingNumber?: string;
-};
