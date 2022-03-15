@@ -313,14 +313,14 @@ class StripeSdkModule(private val reactContext: ReactApplicationContext) : React
 
   @ReactMethod
   fun initPaymentSheet(params: ReadableMap, promise: Promise) {
-    (currentActivity as? AppCompatActivity)?.let {
+    (currentActivity as? AppCompatActivity)?.let { activity ->
       this.initPaymentSheetPromise = promise
 
       paymentSheetFragment = PaymentSheetFragment().also {
         val bundle = toBundleObject(params)
         it.arguments = bundle
       }
-      it.supportFragmentManager.beginTransaction()
+      activity.supportFragmentManager.beginTransaction()
         .add(paymentSheetFragment!!, "payment_sheet_launch_fragment")
         .commit()
     } ?: run {
