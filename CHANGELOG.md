@@ -1,5 +1,7 @@
 # CHANGELOG
 
+- [#846](https://github.com/stripe/stripe-react-native/pull/846) Fix: Avoid crashes when `currentActivity` is null
+
 ## 0.4.0
 
 - [#821](https://github.com/stripe/stripe-react-native/pull/821) Feat: Add support for Klarna
