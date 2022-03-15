@@ -18,7 +18,7 @@
   - `PaymentMethod` is now `PaymentMethod.Result`
   - `PaymentIntent` is now `PaymentIntent.Result`
   - `SetupIntent` is now `SetupIntent.Result`
-  - `Card.Token` is now `Token`
+  - Exports that were under the `Card` namespace are now under `Token`
   - `CreateTokenParams` is now `Token.CreateParams`
   - `BankAcccountHolderType` is now `Token.BankAcccountHolderType`
   - `ThreeDSecureConfigurationParams` is now `ThreeDSecure.ConfigurationParams`
@@ -31,7 +31,7 @@
   - `BillingDetails` type is now exported directly, instead of under the `PaymentMethodCreateParams` object.
   - `BillingDetails` no longer includes `addressPostalCode`, `addressCity`, `addressCountry`, `addressLine1`, `addressLine2`, or `addressState` keys. Instead, it includes an `address` object containing: `city`, `country`, `line1`, `line2`, `postalCode`, `state` keys.
   - `ShippingDetails` no longer includes `addressPostalCode`, `addressCity`, `addressCountry`, `addressLine1`, `addressLine2`, or `addressState` keys. Instead, it includes an `address` object containing: `city`, `country`, `line1`, `line2`, `postalCode`, `state` keys.
-  - `presentGooglePy` now accepts `GooglePay.PresentParams`
+  - `presentGooglePay` now accepts `GooglePay.PresentParams`
   - `GooglePay.PresentGooglePayParams` is now `GooglePay.PresentParams`
   - `GooglePay.PresentGooglePayType` is now `GooglePay.PresentType`
   - `GooglePay.IsGooglePaySupportedParams` is now `GooglePay.IsSupportedParams`
