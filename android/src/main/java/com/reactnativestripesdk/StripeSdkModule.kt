@@ -8,7 +8,6 @@ import android.content.IntentFilter
 import android.os.AsyncTask
 import android.os.Parcelable
 import android.util.Log
-import androidx.activity.ComponentActivity
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
@@ -50,6 +49,9 @@ class StripeSdkModule(private val reactContext: ReactApplicationContext) : React
   private var googlePayFragment: GooglePayFragment? = null
   private var initGooglePayPromise: Promise? = null
   private var presentGooglePayPromise: Promise? = null
+
+  private val currentActivity: AppCompatActivity?
+    get() = (super.getCurrentActivity() as? AppCompatActivity)
 
   private val mActivityEventListener = object : BaseActivityEventListener() {
     override fun onActivityResult(activity: Activity, requestCode: Int, resultCode: Int, data: Intent?) {
@@ -172,7 +174,7 @@ class StripeSdkModule(private val reactContext: ReactApplicationContext) : React
   private val googlePayReceiver: BroadcastReceiver = object : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent) {
       if (intent.action == ON_GOOGLE_PAY_FRAGMENT_CREATED) {
-        (currentActivity as? AppCompatActivity)?.let {
+        currentActivity?.let {
           googlePayFragment = it.supportFragmentManager.findFragmentByTag("google_pay_launch_fragment") as GooglePayFragment
         }
       }
@@ -313,7 +315,7 @@ class StripeSdkModule(private val reactContext: ReactApplicationContext) : React
 
   @ReactMethod
   fun initPaymentSheet(params: ReadableMap, promise: Promise) {
-    (currentActivity as? AppCompatActivity)?.let { activity ->
+    currentActivity?.let { activity ->
       this.initPaymentSheetPromise = promise
 
       paymentSheetFragment = PaymentSheetFragment().also {
@@ -341,7 +343,7 @@ class StripeSdkModule(private val reactContext: ReactApplicationContext) : React
   }
 
   private fun payWithFpx() {
-    (currentActivity as? AppCompatActivity)?.let {
+    currentActivity?.let {
       AddPaymentMethodActivityStarter(it)
         .startForResult(AddPaymentMethodActivityStarter.Args.Builder()
                           .setPaymentMethodType(PaymentMethod.Type.Fpx)
@@ -355,7 +357,7 @@ class StripeSdkModule(private val reactContext: ReactApplicationContext) : React
   private fun onFpxPaymentMethodResult(result: AddPaymentMethodActivityStarter.Result) {
     when (result) {
       is AddPaymentMethodActivityStarter.Result.Success -> {
-        (currentActivity as? AppCompatActivity)?.let {
+        currentActivity?.let {
           stripe.confirmPayment(it,
                                 ConfirmPaymentIntentParams.createWithPaymentMethodId(
                                   result.paymentMethod.id!!,
@@ -500,7 +502,7 @@ class StripeSdkModule(private val reactContext: ReactApplicationContext) : React
 
   @ReactMethod
   fun handleCardAction(paymentIntentClientSecret: String, promise: Promise) {
-    (currentActivity as? ComponentActivity)?.let {
+    currentActivity?.let {
       handleCardActionPromise = promise
       stripe.handleNextActionForPayment(it, paymentIntentClientSecret)
     } ?: run {
@@ -509,7 +511,7 @@ class StripeSdkModule(private val reactContext: ReactApplicationContext) : React
   }
 
   private fun payWithWeChatPay(paymentIntentClientSecret: String, appId: String, promise: Promise) {
-    (currentActivity as? ComponentActivity)?.let {
+    currentActivity?.let {
       it.lifecycleScope.launch {
         stripe.createPaymentMethod(PaymentMethodCreateParams.createWeChatPay()).id?.let { paymentMethodId ->
           val confirmPaymentIntentParams =
@@ -560,7 +562,7 @@ class StripeSdkModule(private val reactContext: ReactApplicationContext) : React
     try {
       val confirmParams = factory.createConfirmParams(paymentMethodType)
       confirmParams.shipping = mapToShippingDetails(getMapOrNull(params, "shippingDetails"))
-      (currentActivity as? ComponentActivity)?.let {
+      currentActivity?.let {
         stripe.confirmPayment(it, confirmParams)
       } ?: run {
         promise.resolve(createMissingActivityError())
@@ -608,7 +610,7 @@ class StripeSdkModule(private val reactContext: ReactApplicationContext) : React
 
     try {
       val confirmParams = factory.createSetupParams(paymentMethodType)
-      (currentActivity as? ComponentActivity)?.let {
+      currentActivity?.let {
         stripe.confirmSetupIntent(it, confirmParams)
       } ?: run {
         promise.resolve(createMissingActivityError())
@@ -621,7 +623,7 @@ class StripeSdkModule(private val reactContext: ReactApplicationContext) : React
 
   @ReactMethod
   fun isGooglePaySupported(params: ReadableMap?, promise: Promise) {
-    (currentActivity as? AppCompatActivity)?.let {
+    currentActivity?.let {
       val fragment = GooglePayPaymentMethodLauncherFragment(
         it,
         getBooleanOrFalse(params, "testEnv"),
@@ -644,7 +646,7 @@ class StripeSdkModule(private val reactContext: ReactApplicationContext) : React
       it.arguments = bundle
     }
 
-    (currentActivity as? AppCompatActivity)?.let {
+    currentActivity?.let {
       initGooglePayPromise = promise
 
       it.supportFragmentManager.beginTransaction()
