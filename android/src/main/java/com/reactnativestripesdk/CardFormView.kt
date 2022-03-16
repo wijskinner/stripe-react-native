@@ -2,6 +2,8 @@ package com.reactnativestripesdk
 
 import android.content.res.ColorStateList
 import android.graphics.Color
+import android.graphics.Typeface
+import android.os.Build
 import android.view.View
 import android.view.View.OnFocusChangeListener
 import android.widget.FrameLayout
@@ -9,7 +11,9 @@ import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.uimanager.ThemedReactContext
 import com.facebook.react.uimanager.UIManagerModule
 import com.facebook.react.uimanager.events.EventDispatcher
+import com.google.android.material.shape.CornerFamily
 import com.google.android.material.shape.MaterialShapeDrawable
+import com.google.android.material.shape.ShapeAppearanceModel
 import com.stripe.android.databinding.CardMultilineWidgetBinding
 import com.stripe.android.databinding.StripeCardFormViewBinding
 import com.stripe.android.model.Address
@@ -26,6 +30,7 @@ class CardFormView(private val context: ThemedReactContext) : FrameLayout(contex
   var cardAddress: Address? = null
   private val cardFormViewBinding = StripeCardFormViewBinding.bind(cardForm)
   private val multilineWidgetBinding = CardMultilineWidgetBinding.bind(cardFormViewBinding.cardMultilineWidget)
+  private var lastCardWasValid = true
 
   init {
     cardFormViewBinding.cardMultilineWidgetContainer.isFocusable = true
@@ -55,7 +60,7 @@ class CardFormView(private val context: ThemedReactContext) : FrameLayout(contex
     val postalCodePlaceholder = getValOr(value, "postalCode", null)
 
     numberPlaceholder?.let {
-//      multilineWidgetBinding.tlCardNumber.hint = it
+      multilineWidgetBinding.tlCardNumber.hint = it
     }
     expirationPlaceholder?.let {
       multilineWidgetBinding.tlExpiry.hint = it
@@ -103,9 +108,91 @@ class CardFormView(private val context: ThemedReactContext) : FrameLayout(contex
   fun setCardStyle(value: ReadableMap) {
     val binding = StripeCardFormViewBinding.bind(cardForm)
     val backgroundColor = getValOr(value, "backgroundColor", null)
+    val textColor = getValOr(value, "textColor", null)
+    val borderWidth = getIntOrNull(value, "borderWidth")
+    val borderColor = getValOr(value, "borderColor", null)
+    val borderRadius = getIntOrNull(value, "borderRadius") ?: 0
+    val fontSize = getIntOrNull(value, "fontSize")
+    val fontFamily = getValOr(value, "fontFamily")
+    val placeholderColor = getValOr(value, "placeholderColor", null)
+    val textErrorColor = getValOr(value, "textErrorColor", null)
+    val cursorColor = getValOr(value, "cursorColor", null)
+
+    val editTextBindings = setOf(
+      cardFormViewBinding.cardMultilineWidget.cardNumberEditText,
+      cardFormViewBinding.cardMultilineWidget.cvcEditText,
+      cardFormViewBinding.cardMultilineWidget.expiryDateEditText,
+      cardFormViewBinding.postalCodeContainer.editText
+    )
 
     binding.cardMultilineWidgetContainer.background = MaterialShapeDrawable().also { shape ->
       shape.fillColor = ColorStateList.valueOf(Color.parseColor("#FFFFFF"))
+      backgroundColor?.let {
+        shape.fillColor = ColorStateList.valueOf(Color.parseColor(it))
+      }
+    }
+
+    textColor?.let {
+      for (binding in editTextBindings) {
+        binding?.setTextColor(Color.parseColor(it))
+      }
+      cardFormViewBinding.countryLayout.countryAutocomplete.setTextColor(Color.parseColor(it))
+    }
+    textErrorColor?.let {
+      val bindingsWithErrorText = setOf(
+        cardFormViewBinding.cardMultilineWidget.cardNumberEditText,
+        cardFormViewBinding.cardMultilineWidget.cvcEditText,
+        cardFormViewBinding.cardMultilineWidget.expiryDateEditText
+      )
+      for (binding in bindingsWithErrorText) {
+        binding.setErrorColor(Color.parseColor(it))
+      }
+    }
+    placeholderColor?.let {
+      multilineWidgetBinding.tlExpiry.defaultHintTextColor = ColorStateList.valueOf(Color.parseColor(it))
+      multilineWidgetBinding.tlCardNumber.defaultHintTextColor = ColorStateList.valueOf(Color.parseColor(it))
+      multilineWidgetBinding.tlCvc.defaultHintTextColor = ColorStateList.valueOf(Color.parseColor(it))
+      cardFormViewBinding.postalCodeContainer.defaultHintTextColor = ColorStateList.valueOf(Color.parseColor(it))
+    }
+    fontSize?.let {
+      for (binding in editTextBindings) {
+        binding?.textSize = it.toFloat()
+      }
+    }
+    fontFamily?.let {
+      for (binding in editTextBindings) {
+        binding?.typeface = Typeface.create(it, Typeface.NORMAL)
+      }
+    }
+    cursorColor?.let {
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        val color = Color.parseColor(it)
+        for (binding in editTextBindings) {
+          binding?.textCursorDrawable?.setTint(color)
+          binding?.textSelectHandle?.setTint(color)
+          binding?.textSelectHandleLeft?.setTint(color)
+          binding?.textSelectHandleRight?.setTint(color)
+          binding?.highlightColor = color
+        }
+      }
+    }
+
+    cardFormViewBinding.cardMultilineWidgetContainer.setPadding(40, 0, 40, 0)
+    cardFormViewBinding.cardMultilineWidgetContainer.background = MaterialShapeDrawable(
+      ShapeAppearanceModel()
+        .toBuilder()
+        .setAllCorners(CornerFamily.ROUNDED, (borderRadius * 2).toFloat())
+        .build()
+    ).also { shape ->
+      shape.strokeWidth = 0.0f
+      shape.strokeColor = ColorStateList.valueOf(Color.parseColor("#000000"))
+      shape.fillColor = ColorStateList.valueOf(Color.parseColor("#FFFFFF"))
+      borderWidth?.let {
+        shape.strokeWidth = (it * 2).toFloat()
+      }
+      borderColor?.let {
+        shape.strokeColor = ColorStateList.valueOf(Color.parseColor(it))
+      }
       backgroundColor?.let {
         shape.fillColor = ColorStateList.valueOf(Color.parseColor(it))
       }
