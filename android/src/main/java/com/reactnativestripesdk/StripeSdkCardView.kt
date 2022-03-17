@@ -161,7 +161,7 @@ class StripeSdkCardView(private val context: ThemedReactContext) : FrameLayout(c
     } catch (e: Exception) {
       Log.e(
         "StripeReactNative",
-        "Unable to set card brand tint color.")
+        "Unable to set card brand tint color: " + e.message)
     }
   }
 
